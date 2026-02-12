@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#06060C">
+<title>Humusic</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#06060C;color:#eee;font-family:-apple-system,sans-serif;max-width:420px;margin:0 auto;min-height:100vh;overflow-x:hidden}
+button{border:none;background:none;color:#eee;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.screen{display:none;padding:20px;padding-top:50px;min-height:100vh}
+.screen.active{display:block}
+.gradient{background:linear-gradient(135deg,#FF6B4A,#FF3CAC,#845EF7)}
+.btn{padding:14px 36px;border-radius:99px;font-size:15px;font-weight:700;color:#fff}
+.pill{padding:8px 16px;border-radius:99px;font-size:13px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);margin:4px;display:inline-block}
+.pill.on{border-color:#FF6B4A;background:rgba(255,107,74,0.15)}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;margin-bottom:10px}
+.dim{color:rgba(255,255,255,0.4)}
+.muted{color:rgba(255,255,255,0.2)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(6,6,12,0.95);border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:100}
+.nav button{font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.rec-btn{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center}
+.rec-btn .dot{width:26px;height:26px;border-radius:50%;background:#fff}
+.rec-btn .stop{width:22px;height:22px;border-radius:4px;background:#fff}
+canvas{width:100%;height:100px;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3CAC,#845EF7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+<p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:4px">YOUR MUSIC STUDIO</p>
+<h1>Humusic</h1>
+<div class="card" style="margin-top:16px;display:flex;justify-content:space-between">
+<span class="dim" style="font-size:12px">🎵 무료 플랜</span>
+<span id="remain" style="font-size:12px;color:#FF6B4A;font-weight:600">남은 곡: 3곡</span>
+</div>
+<div style="text-align:center;padding:30px 0;border-radius:20px;margin-top:16px;background:linear-gradient(160deg,rgba(255,107,74,0.1),rgba(132,94,247,0.05));border:1px solid rgba(255,107,74,0.1)">
+<div style="font-size:48px;margin-bottom:12px">🎤</div>
+<h2 style="font-size:18px;font-weight:700;line-height:1.5;margin-bottom:6px">흥얼거림을<br>음악으로 만들어보세요</h2>
+<p class="dim" style="font-size:13px;margin-bottom:20px">콧노래를 녹음하면 AI가<br>완성된 곡으로 만들어드려요</p>
+<button class="btn gradient" onclick="goRecord()" style="box-shadow:0 6px 24px rgba(255,107,74,0.3)">녹음 시작하기</button>
+</div>
+<div style="margin-top:24px">
+<p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:12px">HOW IT WORKS</p>
+<div class="card">🎙 <b>흥얼거림 녹음</b> <span class="dim">→ 편하게 흥얼거려 주세요</span></div>
+<div class="card">🎨 <b>장르 & 분위기</b> <span class="dim">→ 원하는 스타일 선택</span></div>
+<div class="card">✨ <b>AI가 곡 완성</b> <span class="dim">→ 가사+멜로디+반주</span></div>
+</div>
+<div id="recent" style="margin-top:24px;display:none">
+<p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:12px">최근 만든 곡</p>
+<div id="recent-list"></div>
+</div>
+<div style="height:80px"></div>
+</div>
+
+<!-- RECORDING -->
+<div id="s-record" class="screen">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<button class="dim" onclick="goHome()">← 뒤로</button>
+<span class="muted" style="font-size:12px;letter-spacing:1px">녹음</span>
+<div style="width:40px"></div>
+</div>
+<div style="text-align:center;margin-top:24px">
+<div id="timer" style="font-size:52px;font-weight:300;letter-spacing:6px">0:00</div>
+<div id="rec-status" class="muted" style="font-size:12px;margin-top:6px">버튼을 눌러 시작하세요</div>
+<div id="sim-badge" class="card" style="display:none;margin-top:10px;background:rgba(132,94,247,0.1);border-color:rgba(132,94,247,0.15)">
+<span style="color:#845EF7;font-size:12px;font-weight:600">🎵 미리보기 모드</span><br>
+<span class="dim" style="font-size:11px">실제 배포 시 마이크 녹음 작동</span>
+</div>
+</div>
+<div class="card" style="margin-top:16px;padding:16px"><canvas id="wave"></canvas></div>
+<p class="muted" style="font-size:11px;letter-spacing:1.5px;margin-top:16px">장르</p>
+<div id="genres" style="margin:8px 0 12px;overflow-x:auto;white-space:nowrap"></div>
+<p class="muted" style="font-size:11px;letter-spacing:1.5px">분위기</p>
+<div id="moods" style="margin:8px 0 16px;overflow-x:auto;white-space:nowrap"></div>
+<div style="display:flex;justify-content:center;align-items:center;gap:24px;padding:20px 0">
+<button id="btn-reset" onclick="resetRec()" style="display:none;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:20px">↺</button>
+<button id="btn-rec" class="rec-btn gradient" onclick="toggleRec()"><div class="dot"></div></button>
+<button id="btn-next" onclick="submitGen()" style="display:none;width:48px;height:48px;border-radius:50%;font-size:18px" class="gradient">→</button>
+</div>
+</div>
+
+<!-- GENERATING -->
+<div id="s-gen" class="screen" style="display:none;text-align:center;padding-top:40vh">
+<div style="width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,0.06);border-top-color:#FF6B4A;animation:spin 1s linear infinite;margin:0 auto 24px"></div>
+<h2 style="font-size:18px;font-weight:700;margin-bottom:8px">AI가 곡을 만들고 있어요</h2>
+<p id="gen-style" class="dim" style="font-size:13px;margin-bottom:6px"></p>
+<p id="gen-msg" style="color:#FF6B4A;font-size:12px;animation:pulse 2s infinite;margin-bottom:24px"></p>
+<div style="width:240px;height:5px;border-radius:99px;background:rgba(255,255,255,0.03);margin:0 auto;overflow:hidden">
+<div id="gen-bar" style="width:0%;height:100%;border-radius:99px;transition:width .3s" class="gradient"></div>
+</div>
+<span id="gen-pct" class="muted" style="font-size:12px;margin-top:8px;display:block">0%</span>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<button class="dim" onclick="goHome()">← 홈</button>
+<span class="muted" style="font-size:12px;letter-spacing:1px">완성</span>
+<div style="width:40px"></div>
+</div>
+<div style="text-align:center;margin-top:16px">
+<div id="album-art" style="width:200px;height:200px;border-radius:20px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:56px;box-shadow:0 12px 40px rgba(255,60,172,0.15)" class="gradient">🎶</div>
+<h2 id="song-title" style="font-size:20px;font-weight:700"></h2>
+<p id="song-info" class="dim" style="font-size:13px;margin-top:4px"></p>
+</div>
+<div style="margin-top:16px">
+<audio id="player" style="width:100%;margin-bottom:8px" controls></audio>
+<div id="no-audio" class="dim" style="text-align:center;font-size:12px;display:none">데모 모드 - 실제 배포 시 재생 가능</div>
+</div>
+<div id="lyrics-box" style="margin-top:20px;display:none">
+<p class="muted" style="font-size:11px;letter-spacing:1.5px;margin-bottom:8px">가사</p>
+<div class="card"><p id="lyrics" style="color:rgba(255,255,255,0.55);font-size:13px;line-height:2;white-space:pre-line;font-style:italic"></p></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:16px">
+<button class="card" style="flex:1;text-align:center;font-size:13px;font-weight:600" onclick="goRecord()">🔄 다시 만들기</button>
+</div>
+<div style="height:80px"></div>
+</div>
+
+<!-- LIBRARY -->
+<div id="s-library" class="screen">
+<h1 style="font-size:24px">내 보관함</h1>
+<p class="dim" style="font-size:13px;margin-top:4px" id="lib-count">0곡</p>
+<div id="lib-list" style="margin-top:16px"></div>
+<div id="lib-empty" style="text-align:center;padding:60px 0">
+<div style="font-size:48px;margin-bottom:12px">🎵</div>
+<p class="dim">아직 만든 곡이 없어요</p>
+<button class="btn gradient" onclick="goRecord()" style="margin-top:16px">첫 곡 만들러 가기</button>
+</div>
+<div style="height:80px"></div>
+</div>
+
+<!-- NAV -->
+<div class="nav" id="navbar">
+<button onclick="goHome()"><span>🏠</span><span>홈</span></button>
+<button onclick="goLib()"><span>🎵</span><span>보관함</span></button>
+</div>
+
+<script>
+var G={genre:"pop",mood:"chill",recording:false,simMode:false,time:0,songs:[],created:0},
+mediaRec,audioCtx,analyser,stream,chunks=[],timerIv,canvasAnim,
+GENRES=[{id:"pop",l:"Pop",e:"🎵"},{id:"rnb",l:"R&B",e:"💜"},{id:"hiphop",l:"Hip-Hop",e:"🔥"},{id:"ballad",l:"Ballad",e:"🌙"},{id:"rock",l:"Rock",e:"🎸"},{id:"jazz",l:"Jazz",e:"🎷"},{id:"electronic",l:"Electronic",e:"⚡"},{id:"indie",l:"Indie",e:"🌿"}],
+MOODS=[{id:"chill",l:"편안한",e:"😌"},{id:"energetic",l:"신나는",e:"💃"},{id:"melancholy",l:"감성적인",e:"🌧"},{id:"romantic",l:"로맨틱",e:"💕"},{id:"epic",l:"웅장한",e:"🏔"},{id:"dreamy",l:"몽환적인",e:"☁️"}],
+TITLES={pop:"밤하늘 아래서",rnb:"Sunday Groove",hiphop:"My Anthem",ballad:"빗소리 편지",rock:"Burning Road",jazz:"Midnight Sax",electronic:"네온 시티",indie:"풀밭 위 오후"},
+LYRICS={pop:"밤하늘 아래 걸어가는 이 길\n너와 나 사이 흐르는 melody\n흥얼거리던 그 노래가\n오늘 밤 우리의 이야기가 돼\n\n라라라 불러봐 이 노래를\n세상이 멈춘 것처럼\n우리 둘만의 시간 속에\n영원히 함께 춤을 춰",ballad:"창밖에 비가 내리는 날\n너를 떠올리며 흥얼거려\n잊혀질 줄 알았던 멜로디가\n다시 내 가슴을 적셔\n\n보고 싶다 말하고 싶어\n이 노래에 담아서\n바람에 실려 너에게\n내 마음이 닿기를",hiphop:"Yo 머릿속 멜로디 터져 나와\n비트 위에 올려 봐 내 이야기\n길거리 위 흥얼거림이\n세상을 뒤흔들 anthem이 돼",rnb:"달빛이 내려앉은 이 밤\n너의 목소리가 날 감싸고\n부드러운 바람처럼\n내 곁에 머물러줘"};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('navbar').style.display=(id==='s-home'||id==='s-library')?'flex':'none';}
+function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function goHome(){show('s-home');updateRecent();}
+function goRecord(){G.time=0;G.simMode=false;show('s-record');initPills();updateRecUI();}
+function goLib(){show('s-library');renderLib();}
+
+function initPills(){
+var gh=GENRES.map(g=>'<button class="pill'+(G.genre===g.id?' on':'')+'" onclick="G.genre=\''+g.id+'\';initPills()">'+g.e+' '+g.l+'</button>').join('');
+var mh=MOODS.map(m=>'<button class="pill'+(G.mood===m.id?' on':'')+'" onclick="G.mood=\''+m.id+'\';initPills()">'+m.e+' '+m.l+'</button>').join('');
+document.getElementById('genres').innerHTML=gh;
+document.getElementById('moods').innerHTML=mh;
+}
+
+function updateRecUI(){
+document.getElementById('timer').textContent=fmtT(G.time);
+document.getElementById('rec-status').textContent=G.recording?'● 녹음 중...':G.time>0?'녹음 완료':'버튼을 눌러 시작하세요';
+document.getElementById('rec-status').style.color=G.recording?'#FF6B4A':'rgba(255,255,255,0.2)';
+document.getElementById('sim-badge').style.display=G.simMode&&G.recording?'block':'none';
+document.getElementById('btn-reset').style.display=G.time>0&&!G.recording?'block':'none';
+document.getElementById('btn-next').style.display=G.time>=3&&!G.recording?'block':'none';
+var b=document.getElementById('btn-rec');
+b.style.background=G.recording?'rgba(231,76,60,0.9)':'';
+b.className=G.recording?'rec-btn':'rec-btn gradient';
+b.innerHTML=G.recording?'<div class="stop"></div>':'<div class="dot"></div>';
+}
+
+function resetRec(){G.time=0;G.simMode=false;updateRecUI();}
+
+async function toggleRec(){
+if(G.recording){clearInterval(timerIv);G.recording=false;
+if(!G.simMode&&mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();
+if(stream)stream.getTracks().forEach(t=>t.stop());
+if(audioCtx)audioCtx.close().catch(()=>{});
+updateRecUI();return;}
+try{
+stream=await navigator.mediaDevices.getUserMedia({audio:true});
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+var src=audioCtx.createMediaStreamSource(stream);
+analyser=audioCtx.createAnalyser();analyser.fftSize=256;src.connect(analyser);
+mediaRec=new MediaRecorder(stream);chunks=[];
+mediaRec.ondataavailable=function(e){if(e.data.size>0)chunks.push(e.data);};
+mediaRec.start(100);G.simMode=false;
+}catch(e){G.simMode=true;}
+G.recording=true;G.time=0;
+timerIv=setInterval(function(){G.time++;updateRecUI();},1000);
+updateRecUI();drawWave();
+}
+
+function drawWave(){
+var c=document.getElementById('wave');if(!c)return;
+var ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1;
+c.width=c.offsetWidth*dpr;c.height=c.offsetHeight*dpr;ctx.scale(dpr,dpr);
+var W=c.offsetWidth,H=c.offsetHeight,bars=40,bw=3,gap=(W-bars*bw)/(bars-1),data=new Uint8Array(128),t=0;
+cancelAnimationFrame(canvasAnim);
+function draw(){ctx.clearRect(0,0,W,H);
+if(analyser&&G.recording&&!G.simMode)analyser.getByteFrequencyData(data);
+t+=.06;
+for(var i=0;i<bars;i++){var v;
+if(G.simMode&&G.recording){v=.2+.4*Math.sin(t+i*.3)*Math.sin(t*.7+i*.15)+.15*Math.cos(t*1.3+i*.5);v=Math.max(.05,Math.min(1,v));}
+else if(analyser&&G.recording){v=data[Math.floor(i*128/bars)]/255;}else{v=0;}
+var h=Math.max(3,v*H*.85),x=i*(bw+gap),y=(H-h)/2;
+var g=ctx.createLinearGradient(x,y,x,y+h);
+g.addColorStop(0,'rgba(255,107,74,'+(0.3+v*0.7)+')');
+g.addColorStop(1,'rgba(132,94,247,'+(0.3+v*0.7)+')');
+ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,bw,h,2);ctx.fill();}
+canvasAnim=requestAnimationFrame(draw);}draw();
+}
+
+async function submitGen(){
+if(G.time<3)return;
+G.created++;
+document.getElementById('remain').textContent='남은 곡: '+(3-G.created)+'곡';
+var gl=GENRES.find(g=>g.id===G.genre),ml=MOODS.find(m=>m.id===G.mood);
+show('s-gen');
+document.getElementById('gen-style').textContent=(gl?gl.l:'')+' · '+(ml?ml.l:'');
+document.getElementById('gen-msg').textContent='서버에 전송 중...';
+document.getElementById('gen-bar').style.width='0%';
+document.getElementById('gen-pct').textContent='0%';
+
+var taskId=null;
+try{
+var r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:G.genre,mood:G.mood})});
+var d=await r.json();taskId=d.taskId;
+}catch(e){taskId=null;}
+
+if(taskId){pollStatus(taskId,gl,ml);}
+else{runDemo(gl,ml);}
+}
+
+function pollStatus(taskId,gl,ml){
+var p=10;setProgress(p,'AI가 멜로디를 분석하고 있어요...');
+var iv=setInterval(async function(){
+try{
+var r=await fetch('/api/status?taskId='+taskId);
+var d=await r.json();
+if(d.status==='completed'&&d.song){
+clearInterval(iv);setProgress(100,'완성!');
+var now=new Date(),ds=(now.getMonth()+1)+'월 '+now.getDate()+'일';
+var song={id:Date.now(),title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||'',genreLabel:gl?gl.l:'',moodLabel:ml?ml.l:'',date:ds};
+G.songs.unshift(song);
+setTimeout(function(){showResult(song);},500);
+}else if(d.status==='failed'){clearInterval(iv);runDemo(gl,ml);}
+else{p=Math.min(90,p+5);
+var msg=p<30?'AI가 멜로디를 분석하고 있어요...':p<60?'가사를 생성하고 있어요...':'반주를 완성하고 있어요...';
+setProgress(p,msg);}
+}catch(e){clearInterval(iv);runDemo(gl,ml);}
+},3000);
+}
+
+function runDemo(gl,ml){
+var p=5;
+var iv=setInterval(function(){
+p+=Math.random()*5+2;
+if(p>=100){clearInterval(iv);setProgress(100,'완성!');
+var now=new Date(),ds=(now.getMonth()+1)+'월 '+now.getDate()+'일';
+var song={id:Date.now(),title:TITLES[G.genre]||'나의 노래',audioUrl:'',lyrics:LYRICS[G.genre]||LYRICS.pop,genreLabel:gl?gl.l:'',moodLabel:ml?ml.l:'',date:ds,isDemo:true};
+G.songs.unshift(song);
+setTimeout(function(){showResult(song);},500);return;}
+var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
+setProgress(p,msg);
+},400);
+}
+
+function setProgress(p,msg){
+p=Math.min(100,Math.round(p));
+document.getElementById('gen-bar').style.width=p+'%';
+document.getElementById('gen-pct').textContent=p+'%';
+document.getElementById('gen-msg').textContent=msg||'';
+}
+
+function showResult(song){
+show('s-result');
+document.getElementById('song-title').textContent=song.title;
+document.getElementById('song-info').textContent=song.genreLabel+' · '+song.moodLabel+(song.isDemo?' · Demo':'');
+var player=document.getElementById('player');
+var noAudio=document.getElementById('no-audio');
+if(song.audioUrl){player.src=song.audioUrl;player.style.display='block';noAudio.style.display='none';}
+else{player.style.display='none';noAudio.style.display='block';}
+if(song.lyrics){document.getElementById('lyrics').textContent=song.lyrics;document.getElementById('lyrics-box').style.display='block';}
+else{document.getElementById('lyrics-box').style.display='none';}
+if(song.imageUrl){document.getElementById('album-art').style.background='url('+song.imageUrl+') center/cover';}
+}
+
+function updateRecent(){
+var box=document.getElementById('recent'),list=document.getElementById('recent-list');
+if(G.songs.length===0){box.style.display='none';return;}
+box.style.display='block';
+list.innerHTML=G.songs.slice(0,2).map(function(s,i){return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div><b style="font-size:14px">'+s.title+'</b><br><span class="dim" style="font-size:12px">'+s.genreLabel+' · '+s.moodLabel+'</span></div></div>';}).join('');
+}
+
+function renderLib(){
+var list=document.getElementById('lib-list'),empty=document.getElementById('lib-empty');
+document.getElementById('lib-count').textContent=G.songs.length+'곡';
+if(G.songs.length===0){list.innerHTML='';empty.style.display='block';return;}
+empty.style.display='none';
+list.innerHTML=G.songs.map(function(s,i){return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div style="flex:1;min-width:0"><b style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">'+s.title+'</b><span class="dim" style="font-size:12px">'+s.genreLabel+' · '+s.moodLabel+'</span></div><span class="muted" style="font-size:11px;flex-shrink:0">'+s.date+'</span></div>';}).join('');
+}
+
+goHome();
+</script>
+</body>
+</html>
