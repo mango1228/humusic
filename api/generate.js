@@ -8,38 +8,44 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { genre, mood, audioData } = req.body;
+    const { audioUrl, duration } = req.body;
 
-    const genreMap = {
-      pop: "pop", rnb: "R&B soul", hiphop: "hip-hop rap",
-      ballad: "Korean ballad", rock: "rock", jazz: "jazz",
-      electronic: "electronic EDM", indie: "indie alternative"
-    };
-    const moodMap = {
-      chill: "relaxing chill", energetic: "upbeat energetic",
-      melancholy: "emotional melancholic", romantic: "romantic love",
-      epic: "epic cinematic", dreamy: "dreamy ethereal"
-    };
+    if (!audioUrl) {
+      return res.status(400).json({ success: false, error: "audioUrl is required" });
+    }
 
-    const prompt = (genreMap[genre] || genre) + ", " + (moodMap[mood] || mood) + ", modern production, full song with vocals and lyrics in Korean";
+    const API_KEY = (process.env.SUNO_V2_API_KEY || "").trim();
 
-    const API_KEY = process.env.SUNO_API_KEY;
-
-    const response = await fetch("https://api.apiframe.pro/suno/generate", {
+    const response = await fetch("https://api.sunoapi.org/api/v1/generate/upload-extend", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": API_KEY
+        "Authorization": "Bearer " + API_KEY
       },
       body: JSON.stringify({
-        prompt: prompt,
-        make_instrumental: false,
-        wait_audio: false
+        uploadUrl: audioUrl,
+        defaultParamFlag: true,
+        callBackUrl: "https://humusic.vercel.app/api/callback",
+        model: "V4_5",
+        prompt: "Listen to the uploaded melody and create a full song with vocals and lyrics in Korean. Match the genre and mood naturally to the melody.",
+        style: "modern production",
+        title: "나의 노래",
+        instrumental: false,
+        continueAt: Math.max(1, Math.floor(duration || 10))
       })
     });
 
     const data = await response.json();
-    return res.status(200).json({ success: true, taskId: data.task_id || data.id, raw: data });
+
+    if (data.code === 200 && data.data && data.data.taskId) {
+      return res.status(200).json({ success: true, taskId: data.data.taskId });
+    } else {
+      return res.status(200).json({
+        success: false,
+        error: data.msg || "API error",
+        code: data.code
+      });
+    }
 
   } catch (error) {
     return res.status(500).json({ error: "Generation failed", details: error.message });

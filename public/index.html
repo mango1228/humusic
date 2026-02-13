@@ -27,29 +27,53 @@ canvas{width:100%;height:100px;display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3CAC,#845EF7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+audio{width:100%;height:48px;border-radius:12px;color-scheme:dark}
+audio::-webkit-media-controls-panel{background:rgba(255,255,255,0.06)}
+.play-btn{width:100%;padding:14px;border-radius:14px;font-size:15px;font-weight:700;color:#fff;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 32px;border-radius:99px;font-size:15px;font-weight:600;background:#fff;color:#333;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.user-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.user-info{display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,107,74,0.3)}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+<div style="text-align:center;padding-top:25vh">
+<div style="font-size:64px;margin-bottom:20px">🎤</div>
+<h1 style="font-size:32px;margin-bottom:8px">Humusic</h1>
+<p class="dim" style="font-size:14px;margin-bottom:40px;line-height:1.6">흥얼거림을 AI가<br>음악으로 만들어드려요</p>
+<div id="inapp-warn" style="display:none;background:rgba(255,107,74,0.1);border:1px solid rgba(255,107,74,0.2);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left">
+<p style="font-size:14px;font-weight:700;margin-bottom:6px">외부 브라우저에서 열어주세요</p>
+<p class="dim" style="font-size:12px;line-height:1.6;margin-bottom:10px">카카오톡·인스타그램 등 인앱 브라우저에서는<br>Google 보안 정책으로 로그인이 차단됩니다.</p>
+<button onclick="openExternal()" style="width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;color:#fff;margin-bottom:8px" class="gradient">Chrome/Safari로 열기</button>
+<button onclick="copyLink()" id="copy-btn" style="width:100%;padding:10px;border-radius:10px;font-size:13px;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1)">링크 복사하기</button>
+</div>
+<button class="google-btn" onclick="signIn()">
+<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+Google로 시작하기
+</button>
+</div>
+</div>
+
 <!-- HOME -->
-<div id="s-home" class="screen active">
+<div id="s-home" class="screen">
+<div class="user-bar">
+<div>
 <p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:4px">YOUR MUSIC STUDIO</p>
 <h1>Humusic</h1>
-<div class="card" style="margin-top:16px;display:flex;justify-content:space-between">
-<span class="dim" style="font-size:12px">🎵 무료 플랜</span>
-<span id="remain" style="font-size:12px;color:#FF6B4A;font-weight:600">남은 곡: 3곡</span>
 </div>
-<div style="text-align:center;padding:30px 0;border-radius:20px;margin-top:16px;background:linear-gradient(160deg,rgba(255,107,74,0.1),rgba(132,94,247,0.05));border:1px solid rgba(255,107,74,0.1)">
+<div class="user-info">
+<img id="user-avatar" class="user-avatar" src="" alt="">
+<button class="dim" style="font-size:11px" onclick="signOut()">로그아웃</button>
+</div>
+</div>
+<div style="text-align:center;padding:30px 0;border-radius:20px;margin-top:8px;background:linear-gradient(160deg,rgba(255,107,74,0.1),rgba(132,94,247,0.05));border:1px solid rgba(255,107,74,0.1)">
 <div style="font-size:48px;margin-bottom:12px">🎤</div>
 <h2 style="font-size:18px;font-weight:700;line-height:1.5;margin-bottom:6px">흥얼거림을<br>음악으로 만들어보세요</h2>
 <p class="dim" style="font-size:13px;margin-bottom:20px">콧노래를 녹음하면 AI가<br>완성된 곡으로 만들어드려요</p>
 <button class="btn gradient" onclick="goRecord()" style="box-shadow:0 6px 24px rgba(255,107,74,0.3)">녹음 시작하기</button>
-</div>
-<div style="margin-top:24px">
-<p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:12px">HOW IT WORKS</p>
-<div class="card">🎙 <b>흥얼거림 녹음</b> <span class="dim">→ 편하게 흥얼거려 주세요</span></div>
-<div class="card">🎨 <b>장르 & 분위기</b> <span class="dim">→ 원하는 스타일 선택</span></div>
-<div class="card">✨ <b>AI가 곡 완성</b> <span class="dim">→ 가사+멜로디+반주</span></div>
 </div>
 <div id="recent" style="margin-top:24px;display:none">
 <p class="muted" style="font-size:11px;letter-spacing:2px;margin-bottom:12px">최근 만든 곡</p>
@@ -69,15 +93,12 @@ h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3
 <div id="timer" style="font-size:52px;font-weight:300;letter-spacing:6px">0:00</div>
 <div id="rec-status" class="muted" style="font-size:12px;margin-top:6px">버튼을 눌러 시작하세요</div>
 <div id="sim-badge" class="card" style="display:none;margin-top:10px;background:rgba(132,94,247,0.1);border-color:rgba(132,94,247,0.15)">
-<span style="color:#845EF7;font-size:12px;font-weight:600">🎵 미리보기 모드</span><br>
-<span class="dim" style="font-size:11px">실제 배포 시 마이크 녹음 작동</span>
+<span style="color:#845EF7;font-size:12px;font-weight:600">🎵 시뮬레이션 모드</span><br>
+<span class="dim" style="font-size:11px">마이크 권한이 필요합니다</span>
 </div>
 </div>
 <div class="card" style="margin-top:16px;padding:16px"><canvas id="wave"></canvas></div>
-<p class="muted" style="font-size:11px;letter-spacing:1.5px;margin-top:16px">장르</p>
-<div id="genres" style="margin:8px 0 12px;overflow-x:auto;white-space:nowrap"></div>
-<p class="muted" style="font-size:11px;letter-spacing:1.5px">분위기</p>
-<div id="moods" style="margin:8px 0 16px;overflow-x:auto;white-space:nowrap"></div>
+<p class="dim" style="font-size:12px;text-align:center;margin-top:16px;line-height:1.6">AI가 멜로디를 듣고<br>장르와 분위기를 자동으로 맞춰드려요</p>
 <div style="display:flex;justify-content:center;align-items:center;gap:24px;padding:20px 0">
 <button id="btn-reset" onclick="resetRec()" style="display:none;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:20px">↺</button>
 <button id="btn-rec" class="rec-btn gradient" onclick="toggleRec()"><div class="dot"></div></button>
@@ -86,15 +107,16 @@ h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3
 </div>
 
 <!-- GENERATING -->
-<div id="s-gen" class="screen" style="display:none;text-align:center;padding-top:40vh">
+<div id="s-gen" class="screen" style="text-align:center;padding-top:30vh">
 <div style="width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,0.06);border-top-color:#FF6B4A;animation:spin 1s linear infinite;margin:0 auto 24px"></div>
 <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">AI가 곡을 만들고 있어요</h2>
 <p id="gen-style" class="dim" style="font-size:13px;margin-bottom:6px"></p>
-<p id="gen-msg" style="color:#FF6B4A;font-size:12px;animation:pulse 2s infinite;margin-bottom:24px"></p>
+<p id="gen-msg" style="color:#FF6B4A;font-size:12px;animation:pulse 2s infinite;margin-bottom:16px"></p>
 <div style="width:240px;height:5px;border-radius:99px;background:rgba(255,255,255,0.03);margin:0 auto;overflow:hidden">
 <div id="gen-bar" style="width:0%;height:100%;border-radius:99px;transition:width .3s" class="gradient"></div>
 </div>
 <span id="gen-pct" class="muted" style="font-size:12px;margin-top:8px;display:block">0%</span>
+<p class="dim" style="font-size:11px;margin-top:20px;line-height:1.6">보통 1~3분 정도 소요됩니다<br>화면을 닫지 마세요</p>
 </div>
 
 <!-- RESULT -->
@@ -110,7 +132,11 @@ h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3
 <p id="song-info" class="dim" style="font-size:13px;margin-top:4px"></p>
 </div>
 <div style="margin-top:16px">
-<audio id="player" style="width:100%;margin-bottom:8px" controls></audio>
+<button id="play-btn" class="play-btn gradient" onclick="togglePlay()" style="display:none;box-shadow:0 6px 24px rgba(255,107,74,0.3)">
+<span id="play-icon" style="font-size:20px">▶</span>
+<span id="play-text">재생하기</span>
+</button>
+<audio id="player" style="margin-top:8px;margin-bottom:8px" controls></audio>
 <div id="no-audio" class="dim" style="text-align:center;font-size:12px;display:none">데모 모드 - 실제 배포 시 재생 가능</div>
 </div>
 <div id="lyrics-box" style="margin-top:20px;display:none">
@@ -137,32 +163,68 @@ h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3
 </div>
 
 <!-- NAV -->
-<div class="nav" id="navbar">
+<div class="nav" id="navbar" style="display:none">
 <button onclick="goHome()"><span>🏠</span><span>홈</span></button>
 <button onclick="goLib()"><span>🎵</span><span>보관함</span></button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var G={genre:"pop",mood:"chill",recording:false,simMode:false,time:0,songs:[],created:0},
-mediaRec,audioCtx,analyser,stream,chunks=[],timerIv,canvasAnim,
+// Supabase 초기화
+var SUPABASE_URL='https://xjuzejvrzhzwjcwcmgmv.supabase.co';
+var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXplanZyemh6d2pjd2NtZ212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MzkyOTcsImV4cCI6MjA4NjUxNTI5N30.cMJGmuIZ7_LsBvHcmqxOmkWoPx1jCrAp4_W4CYg8_uE';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+var G={recording:false,simMode:false,time:0,songs:[],user:null,melodyData:null},
+mediaRec,audioCtx,analyser,stream,chunks=[],timerIv,canvasAnim,pitchHistory=[],energyHistory=[],
 GENRES=[{id:"pop",l:"Pop",e:"🎵"},{id:"rnb",l:"R&B",e:"💜"},{id:"hiphop",l:"Hip-Hop",e:"🔥"},{id:"ballad",l:"Ballad",e:"🌙"},{id:"rock",l:"Rock",e:"🎸"},{id:"jazz",l:"Jazz",e:"🎷"},{id:"electronic",l:"Electronic",e:"⚡"},{id:"indie",l:"Indie",e:"🌿"}],
 MOODS=[{id:"chill",l:"편안한",e:"😌"},{id:"energetic",l:"신나는",e:"💃"},{id:"melancholy",l:"감성적인",e:"🌧"},{id:"romantic",l:"로맨틱",e:"💕"},{id:"epic",l:"웅장한",e:"🏔"},{id:"dreamy",l:"몽환적인",e:"☁️"}],
 TITLES={pop:"밤하늘 아래서",rnb:"Sunday Groove",hiphop:"My Anthem",ballad:"빗소리 편지",rock:"Burning Road",jazz:"Midnight Sax",electronic:"네온 시티",indie:"풀밭 위 오후"},
 LYRICS={pop:"밤하늘 아래 걸어가는 이 길\n너와 나 사이 흐르는 melody\n흥얼거리던 그 노래가\n오늘 밤 우리의 이야기가 돼\n\n라라라 불러봐 이 노래를\n세상이 멈춘 것처럼\n우리 둘만의 시간 속에\n영원히 함께 춤을 춰",ballad:"창밖에 비가 내리는 날\n너를 떠올리며 흥얼거려\n잊혀질 줄 알았던 멜로디가\n다시 내 가슴을 적셔\n\n보고 싶다 말하고 싶어\n이 노래에 담아서\n바람에 실려 너에게\n내 마음이 닿기를",hiphop:"Yo 머릿속 멜로디 터져 나와\n비트 위에 올려 봐 내 이야기\n길거리 위 흥얼거림이\n세상을 뒤흔들 anthem이 돼",rnb:"달빛이 내려앉은 이 밤\n너의 목소리가 날 감싸고\n부드러운 바람처럼\n내 곁에 머물러줘"};
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('navbar').style.display=(id==='s-home'||id==='s-library')?'flex':'none';}
-function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
-function goHome(){show('s-home');updateRecent();}
-function goRecord(){G.time=0;G.simMode=false;show('s-record');initPills();updateRecUI();}
-function goLib(){show('s-library');renderLib();}
-
-function initPills(){
-var gh=GENRES.map(g=>'<button class="pill'+(G.genre===g.id?' on':'')+'" onclick="G.genre=\''+g.id+'\';initPills()">'+g.e+' '+g.l+'</button>').join('');
-var mh=MOODS.map(m=>'<button class="pill'+(G.mood===m.id?' on':'')+'" onclick="G.mood=\''+m.id+'\';initPills()">'+m.e+' '+m.l+'</button>').join('');
-document.getElementById('genres').innerHTML=gh;
-document.getElementById('moods').innerHTML=mh;
+// === 인증 ===
+async function signIn(){
+sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});
 }
 
+async function signOut(){
+await sb.auth.signOut();
+G.user=null;G.songs=[];
+show('s-login');
+document.getElementById('navbar').style.display='none';
+}
+
+async function checkAuth(){
+var {data:{session}}=await sb.auth.getSession();
+if(session&&session.user){
+G.user=session.user;
+showLoggedIn();
+}else{
+show('s-login');
+document.getElementById('navbar').style.display='none';
+}
+}
+
+function showLoggedIn(){
+var avatar=G.user.user_metadata.avatar_url||'';
+if(avatar)document.getElementById('user-avatar').src=avatar;
+document.getElementById('user-avatar').style.display=avatar?'block':'none';
+goHome();
+}
+
+sb.auth.onAuthStateChange(function(event,session){
+if(event==='SIGNED_IN'&&session){G.user=session.user;showLoggedIn();}
+if(event==='SIGNED_OUT'){G.user=null;show('s-login');document.getElementById('navbar').style.display='none';}
+});
+
+// === 네비게이션 ===
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active');document.getElementById('navbar').style.display=(id==='s-home'||id==='s-library')?'flex':'none';}
+function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function goHome(){show('s-home');loadRecent();}
+function goRecord(){G.time=0;G.simMode=false;show('s-record');updateRecUI();}
+function goLib(){show('s-library');loadLibrary();}
+
+// === 녹음 UI ===
 function updateRecUI(){
 document.getElementById('timer').textContent=fmtT(G.time);
 document.getElementById('rec-status').textContent=G.recording?'● 녹음 중...':G.time>0?'녹음 완료':'버튼을 눌러 시작하세요';
@@ -180,9 +242,10 @@ function resetRec(){G.time=0;G.simMode=false;updateRecUI();}
 
 async function toggleRec(){
 if(G.recording){clearInterval(timerIv);G.recording=false;
+if(!G.simMode)G.melodyData=analyzeMelody();
 if(!G.simMode&&mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();
-if(stream)stream.getTracks().forEach(t=>t.stop());
-if(audioCtx)audioCtx.close().catch(()=>{});
+if(stream)stream.getTracks().forEach(function(t){t.stop()});
+if(audioCtx)audioCtx.close().catch(function(){});
 updateRecUI();return;}
 try{
 stream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -191,7 +254,7 @@ var src=audioCtx.createMediaStreamSource(stream);
 analyser=audioCtx.createAnalyser();analyser.fftSize=256;src.connect(analyser);
 mediaRec=new MediaRecorder(stream);chunks=[];
 mediaRec.ondataavailable=function(e){if(e.data.size>0)chunks.push(e.data);};
-mediaRec.start(100);G.simMode=false;
+mediaRec.start(100);G.simMode=false;pitchHistory=[];energyHistory=[];
 }catch(e){G.simMode=true;}
 G.recording=true;G.time=0;
 timerIv=setInterval(function(){G.time++;updateRecUI();},1000);
@@ -205,7 +268,10 @@ c.width=c.offsetWidth*dpr;c.height=c.offsetHeight*dpr;ctx.scale(dpr,dpr);
 var W=c.offsetWidth,H=c.offsetHeight,bars=40,bw=3,gap=(W-bars*bw)/(bars-1),data=new Uint8Array(128),t=0;
 cancelAnimationFrame(canvasAnim);
 function draw(){ctx.clearRect(0,0,W,H);
-if(analyser&&G.recording&&!G.simMode)analyser.getByteFrequencyData(data);
+if(analyser&&G.recording&&!G.simMode){analyser.getByteFrequencyData(data);
+if(Math.random()<0.15){var maxI=0,maxV=0,totalE=0;for(var j=0;j<data.length;j++){totalE+=data[j];if(data[j]>maxV){maxV=data[j];maxI=j;}}
+if(maxV>30){var freq=maxI*audioCtx.sampleRate/analyser.fftSize;pitchHistory.push(freq);}
+energyHistory.push(totalE/data.length);}}
 t+=.06;
 for(var i=0;i<bars;i++){var v;
 if(G.simMode&&G.recording){v=.2+.4*Math.sin(t+i*.3)*Math.sin(t*.7+i*.15)+.15*Math.cos(t*1.3+i*.5);v=Math.max(.05,Math.min(1,v));}
@@ -218,55 +284,136 @@ ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,bw,h,2);ctx.fill();}
 canvasAnim=requestAnimationFrame(draw);}draw();
 }
 
+// === 멜로디 분석 ===
+function analyzeMelody(){
+if(pitchHistory.length<5)return null;
+var NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqToNote(f){var n=12*Math.log2(f/440)+69;return{note:NOTES[Math.round(n)%12],octave:Math.floor(Math.round(n)/12)-1,midi:Math.round(n)};}
+var avgFreq=pitchHistory.reduce(function(a,b){return a+b},0)/pitchHistory.length;
+var minFreq=Math.min.apply(null,pitchHistory),maxFreq=Math.max.apply(null,pitchHistory);
+var avgNote=freqToNote(avgFreq);
+var range=freqToNote(maxFreq).midi-freqToNote(minFreq).midi;
+var ups=0,downs=0;
+for(var i=1;i<pitchHistory.length;i++){if(pitchHistory[i]>pitchHistory[i-1]*1.03)ups++;else if(pitchHistory[i]<pitchHistory[i-1]*0.97)downs++;}
+var contour=ups>downs*1.5?'ascending':downs>ups*1.5?'descending':'flowing';
+var avgE=energyHistory.length>0?energyHistory.reduce(function(a,b){return a+b},0)/energyHistory.length:50;
+var dynamics=avgE>100?'powerful and loud':avgE>60?'moderate energy':'soft and gentle';
+var tempo='medium tempo';
+if(energyHistory.length>20){var peaks=0;for(var i=2;i<energyHistory.length-2;i++){if(energyHistory[i]>energyHistory[i-1]&&energyHistory[i]>energyHistory[i+1]&&energyHistory[i]>avgE*1.2)peaks++;}
+var bpm=Math.round(peaks/(G.time/60)*4);
+if(bpm>0)tempo=bpm>140?'fast tempo around '+bpm+' BPM':bpm>100?'moderate tempo around '+bpm+' BPM':'slow tempo around '+bpm+' BPM';}
+return{key:avgNote.note,range:range,contour:contour,dynamics:dynamics,tempo:tempo};}
+
+// === WebM → WAV 변환 ===
+function convertToWav(blob){
+return new Promise(function(resolve,reject){
+var actx=new(window.AudioContext||window.webkitAudioContext)();
+var reader=new FileReader();
+reader.onloadend=function(){
+actx.decodeAudioData(reader.result,function(buf){
+var numCh=buf.numberOfChannels,rate=buf.sampleRate,len=buf.length;
+var wavBuf=new ArrayBuffer(44+len*numCh*2);
+var view=new DataView(wavBuf);
+function writeStr(o,s){for(var i=0;i<s.length;i++)view.setUint8(o+i,s.charCodeAt(i));}
+writeStr(0,'RIFF');view.setUint32(4,36+len*numCh*2,true);writeStr(8,'WAVE');
+writeStr(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+view.setUint16(22,numCh,true);view.setUint32(24,rate,true);
+view.setUint32(28,rate*numCh*2,true);view.setUint16(32,numCh*2,true);
+view.setUint16(34,16,true);writeStr(36,'data');view.setUint32(40,len*numCh*2,true);
+var off=44;
+for(var i=0;i<len;i++){for(var ch=0;ch<numCh;ch++){
+var s=Math.max(-1,Math.min(1,buf.getChannelData(ch)[i]));
+view.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}}
+actx.close();
+resolve(new Blob([wavBuf],{type:'audio/wav'}));
+},function(e){actx.close();reject(e);});
+};
+reader.onerror=reject;
+reader.readAsArrayBuffer(blob);
+});
+}
+
+// === 곡 생성 ===
 async function submitGen(){
 if(G.time<3)return;
-G.created++;
-document.getElementById('remain').textContent='남은 곡: '+(3-G.created)+'곡';
-var gl=GENRES.find(g=>g.id===G.genre),ml=MOODS.find(m=>m.id===G.mood);
 show('s-gen');
-document.getElementById('gen-style').textContent=(gl?gl.l:'')+' · '+(ml?ml.l:'');
-document.getElementById('gen-msg').textContent='서버에 전송 중...';
+document.getElementById('gen-style').textContent='멜로디 기반 AI 자동 작곡';
 document.getElementById('gen-bar').style.width='0%';
 document.getElementById('gen-pct').textContent='0%';
 
-var taskId=null;
-try{
-var r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({genre:G.genre,mood:G.mood})});
-var d=await r.json();taskId=d.taskId;
-}catch(e){taskId=null;}
-
-if(taskId){pollStatus(taskId,gl,ml);}
-else{runDemo(gl,ml);}
+// 시뮬레이션 모드 (마이크 없음) → 데모
+if(G.simMode||chunks.length===0){
+setProgress(5,'시뮬레이션 모드 - 데모를 준비합니다...');
+setTimeout(function(){runDemo();},500);
+return;
 }
 
-function pollStatus(taskId,gl,ml){
-var p=10;setProgress(p,'AI가 멜로디를 분석하고 있어요...');
+var taskId=null;
+
+// Step 1: WebM → WAV 변환 후 업로드
+setProgress(5,'오디오를 변환하고 있어요...');
+try{
+var webmBlob=new Blob(chunks,{type:'audio/webm'});
+var wavBlob=await convertToWav(webmBlob);
+setProgress(8,'녹음된 오디오를 업로드 중...');
+var base64=await new Promise(function(resolve,reject){
+var reader=new FileReader();
+reader.onloadend=function(){resolve(reader.result.split(',')[1]);};
+reader.onerror=reject;
+reader.readAsDataURL(wavBlob);
+});
+
+var uploadRes=await fetch('/api/upload-audio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audioBase64:base64})});
+var uploadData=await uploadRes.json();
+
+if(!uploadData.success||!uploadData.blobUrl){
+console.log('Upload failed:',uploadData);
+setProgress(10,'업로드 실패 - 데모 모드로 전환합니다...');
+setTimeout(function(){runDemo();},1500);
+return;
+}
+
+// Step 2: sunoapi.org upload-extend
+setProgress(15,'AI에게 곡 생성을 요청 중...');
+var genRes=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audioUrl:uploadData.blobUrl,duration:G.time})});
+var genData=await genRes.json();
+
+if(genData.success&&genData.taskId){taskId=genData.taskId;}
+else{console.log('Generate error:',genData);taskId=null;}
+}catch(e){console.log('Error:',e);taskId=null;}
+
+if(taskId){pollStatus(taskId);}
+else{setProgress(10,'API 오류 - 데모 모드로 전환합니다...');setTimeout(function(){runDemo();},1500);}
+}
+
+function pollStatus(taskId){
+var p=5;setProgress(p,'서버에 요청을 보냈어요...');
 var iv=setInterval(async function(){
 try{
 var r=await fetch('/api/status?taskId='+taskId);
 var d=await r.json();
 if(d.status==='completed'&&d.song){
 clearInterval(iv);setProgress(100,'완성!');
-var now=new Date(),ds=(now.getMonth()+1)+'월 '+now.getDate()+'일';
-var song={id:Date.now(),title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||'',genreLabel:gl?gl.l:'',moodLabel:ml?ml.l:'',date:ds};
-G.songs.unshift(song);
+var song={title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||''};
+await saveSong(song);
 setTimeout(function(){showResult(song);},500);
-}else if(d.status==='failed'){clearInterval(iv);runDemo(gl,ml);}
-else{p=Math.min(90,p+5);
-var msg=p<30?'AI가 멜로디를 분석하고 있어요...':p<60?'가사를 생성하고 있어요...':'반주를 완성하고 있어요...';
+}else if(d.status==='failed'){clearInterval(iv);runDemo();}
+else{
+var serverP=d.progress||0;
+p=serverP>p?serverP:Math.min(90,p+2);
+var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
 setProgress(p,msg);}
-}catch(e){clearInterval(iv);runDemo(gl,ml);}
+}catch(e){clearInterval(iv);runDemo();}
 },3000);
 }
 
-function runDemo(gl,ml){
+function runDemo(){
 var p=5;
 var iv=setInterval(function(){
 p+=Math.random()*5+2;
 if(p>=100){clearInterval(iv);setProgress(100,'완성!');
-var now=new Date(),ds=(now.getMonth()+1)+'월 '+now.getDate()+'일';
-var song={id:Date.now(),title:TITLES[G.genre]||'나의 노래',audioUrl:'',lyrics:LYRICS[G.genre]||LYRICS.pop,genreLabel:gl?gl.l:'',moodLabel:ml?ml.l:'',date:ds,isDemo:true};
-G.songs.unshift(song);
+var song={title:'나의 노래',audioUrl:'',lyrics:LYRICS.pop,isDemo:true};
+saveSong(song);
 setTimeout(function(){showResult(song);},500);return;}
 var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
 setProgress(p,msg);
@@ -280,35 +427,116 @@ document.getElementById('gen-pct').textContent=p+'%';
 document.getElementById('gen-msg').textContent=msg||'';
 }
 
+// === DB 저장/조회 ===
+async function saveSong(song){
+if(!G.user)return;
+try{
+await sb.from('songs').insert({
+user_id:G.user.id,
+title:song.title,
+audio_url:song.audioUrl||null,
+image_url:song.imageUrl||null,
+lyrics:song.lyrics||null,
+genre:song.genre||null,
+mood:song.mood||null,
+is_demo:song.isDemo||false
+});
+}catch(e){console.log('Save failed',e);}
+}
+
+async function loadRecent(){
+var box=document.getElementById('recent'),list=document.getElementById('recent-list');
+if(!G.user){box.style.display='none';return;}
+try{
+var {data}=await sb.from('songs').select('*').eq('user_id',G.user.id).order('created_at',{ascending:false}).limit(3);
+if(!data||data.length===0){box.style.display='none';return;}
+box.style.display='block';
+G.songs=data.map(dbToSong);
+list.innerHTML=G.songs.slice(0,3).map(function(s,i){return songCard(s,i);}).join('');
+}catch(e){box.style.display='none';}
+}
+
+async function loadLibrary(){
+var list=document.getElementById('lib-list'),empty=document.getElementById('lib-empty');
+if(!G.user){list.innerHTML='';empty.style.display='block';return;}
+try{
+var {data}=await sb.from('songs').select('*').eq('user_id',G.user.id).order('created_at',{ascending:false});
+if(!data||data.length===0){list.innerHTML='';empty.style.display='block';document.getElementById('lib-count').textContent='0곡';return;}
+G.songs=data.map(dbToSong);
+document.getElementById('lib-count').textContent=G.songs.length+'곡';
+empty.style.display='none';
+list.innerHTML=G.songs.map(function(s,i){
+var d=new Date(s.createdAt);
+var ds=(d.getMonth()+1)+'월 '+d.getDate()+'일';
+var info=s.genreLabel&&s.moodLabel?s.genreLabel+' · '+s.moodLabel:'AI 작곡';
+return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div style="flex:1;min-width:0"><b style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">'+s.title+'</b><span class="dim" style="font-size:12px">'+info+'</span></div><span class="muted" style="font-size:11px;flex-shrink:0">'+ds+'</span></div>';
+}).join('');
+}catch(e){list.innerHTML='';empty.style.display='block';}
+}
+
+function dbToSong(row){
+var gl=GENRES.find(function(g){return g.id===row.genre}),ml=MOODS.find(function(m){return m.id===row.mood});
+return {id:row.id,title:row.title,audioUrl:row.audio_url||'',imageUrl:row.image_url||'',lyrics:row.lyrics||'',genre:row.genre,mood:row.mood,genreLabel:gl?gl.l:'',moodLabel:ml?ml.l:'',isDemo:row.is_demo,createdAt:row.created_at};
+}
+
+function songCard(s,i){
+var info=s.genreLabel&&s.moodLabel?s.genreLabel+' · '+s.moodLabel:'AI 작곡';
+return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div><b style="font-size:14px">'+s.title+'</b><br><span class="dim" style="font-size:12px">'+info+'</span></div></div>';
+}
+
+// === 결과 표시 ===
 function showResult(song){
 show('s-result');
 document.getElementById('song-title').textContent=song.title;
-document.getElementById('song-info').textContent=song.genreLabel+' · '+song.moodLabel+(song.isDemo?' · Demo':'');
+var infoText=song.genreLabel&&song.moodLabel?song.genreLabel+' · '+song.moodLabel:'AI 작곡';
+document.getElementById('song-info').textContent=infoText+(song.isDemo?' · Demo':'');
 var player=document.getElementById('player');
 var noAudio=document.getElementById('no-audio');
-if(song.audioUrl){player.src=song.audioUrl;player.style.display='block';noAudio.style.display='none';}
-else{player.style.display='none';noAudio.style.display='block';}
+var playBtn=document.getElementById('play-btn');
+if(song.audioUrl){
+player.src=song.audioUrl;player.style.display='block';player.load();
+playBtn.style.display='flex';noAudio.style.display='none';
+player.onplay=function(){document.getElementById('play-icon').textContent='⏸';document.getElementById('play-text').textContent='일시정지';};
+player.onpause=function(){document.getElementById('play-icon').textContent='▶';document.getElementById('play-text').textContent='재생하기';};
+player.onended=function(){document.getElementById('play-icon').textContent='▶';document.getElementById('play-text').textContent='다시 재생';};
+}else{player.style.display='none';playBtn.style.display='none';noAudio.style.display='block';noAudio.innerHTML=song.isDemo?'🎵 데모 미리보기 - 가사와 스타일만 확인 가능합니다<br><span style="font-size:11px;margin-top:4px;display:block">실제 곡 생성은 API 크레딧이 필요합니다</span>':'⏳ 오디오를 불러올 수 없습니다';}
 if(song.lyrics){document.getElementById('lyrics').textContent=song.lyrics;document.getElementById('lyrics-box').style.display='block';}
 else{document.getElementById('lyrics-box').style.display='none';}
 if(song.imageUrl){document.getElementById('album-art').style.background='url('+song.imageUrl+') center/cover';}
+else{document.getElementById('album-art').style.background='';document.getElementById('album-art').className='gradient';document.getElementById('album-art').style.borderRadius='20px';}
 }
 
-function updateRecent(){
-var box=document.getElementById('recent'),list=document.getElementById('recent-list');
-if(G.songs.length===0){box.style.display='none';return;}
-box.style.display='block';
-list.innerHTML=G.songs.slice(0,2).map(function(s,i){return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div><b style="font-size:14px">'+s.title+'</b><br><span class="dim" style="font-size:12px">'+s.genreLabel+' · '+s.moodLabel+'</span></div></div>';}).join('');
+function togglePlay(){
+var player=document.getElementById('player');
+if(player.paused){player.play();}else{player.pause();}
 }
 
-function renderLib(){
-var list=document.getElementById('lib-list'),empty=document.getElementById('lib-empty');
-document.getElementById('lib-count').textContent=G.songs.length+'곡';
-if(G.songs.length===0){list.innerHTML='';empty.style.display='block';return;}
-empty.style.display='none';
-list.innerHTML=G.songs.map(function(s,i){return '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="showResult(G.songs['+i+'])"><div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" class="gradient">▶</div><div style="flex:1;min-width:0"><b style="font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">'+s.title+'</b><span class="dim" style="font-size:12px">'+s.genreLabel+' · '+s.moodLabel+'</span></div><span class="muted" style="font-size:11px;flex-shrink:0">'+s.date+'</span></div>';}).join('');
+// === 인앱 브라우저 감지 ===
+function isInAppBrowser(){
+var ua=navigator.userAgent||'';
+return /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\/|Twitter|Snapchat|WhatsApp|Daum|everytimeApp|wv\)/i.test(ua);
 }
+function openExternal(){
+var url=location.href;
+if(/android/i.test(navigator.userAgent)){
+location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';
+setTimeout(function(){location.href='googlechrome://navigate?url='+encodeURIComponent(url);},500);
+}else{
+location.href=url;
+}
+}
+function copyLink(){
+navigator.clipboard.writeText(location.href).then(function(){
+document.getElementById('copy-btn').textContent='복사 완료!';
+setTimeout(function(){document.getElementById('copy-btn').textContent='링크 복사하기';},2000);
+}).catch(function(){
+prompt('아래 링크를 복사하세요:',location.href);
+});
+}
+if(isInAppBrowser()){document.getElementById('inapp-warn').style.display='block';}
 
-goHome();
+// === 초기화 ===
+checkAuth();
 </script>
 </body>
 </html>
