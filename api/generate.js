@@ -24,13 +24,9 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         uploadUrl: audioUrl,
-        defaultParamFlag: true,
+        defaultParamFlag: false,
         callBackUrl: "https://humusic.vercel.app/api/callback",
         model: "V4_5",
-        prompt: "Listen to the uploaded melody and create a full song with vocals and lyrics in Korean. Match the genre and mood naturally to the melody.",
-        style: "modern production",
-        title: "나의 노래",
-        instrumental: false,
         continueAt: Math.max(1, Math.floor(duration || 10))
       })
     });
