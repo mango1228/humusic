@@ -27,6 +27,7 @@ module.exports = async function handler(req, res) {
         defaultParamFlag: false,
         callBackUrl: "https://humusic.vercel.app/api/callback",
         model: "V4_5",
+        instrumental: false,
         continueAt: Math.max(1, Math.floor(duration || 10))
       })
     });
