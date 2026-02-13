@@ -25,9 +25,6 @@ canvas{width:100%;height:100px;display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#FF6B4A,#FF3CAC,#845EF7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-audio{width:100%;height:48px;border-radius:12px;color-scheme:dark}
-audio::-webkit-media-controls-panel{background:rgba(255,255,255,0.06)}
-.play-btn{width:100%;padding:14px;border-radius:14px;font-size:15px;font-weight:700;color:#fff;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
 .google-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 32px;border-radius:99px;font-size:15px;font-weight:600;background:#fff;color:#333;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
 .user-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .user-info{display:flex;align-items:center;gap:10px}
@@ -41,7 +38,7 @@ audio::-webkit-media-controls-panel{background:rgba(255,255,255,0.06)}
 <div style="text-align:center;padding-top:25vh">
 <div style="font-size:64px;margin-bottom:20px">🎤</div>
 <h1 style="font-size:32px;margin-bottom:8px">Humusic</h1>
-<p class="dim" style="font-size:14px;margin-bottom:40px;line-height:1.6">흥얼거림을 AI가<br>음악으로 만들어드려요</p>
+<p class="dim" style="font-size:14px;margin-bottom:40px;line-height:1.6">녹음하면 AI가<br>음악으로 만들어드려요</p>
 <div id="inapp-warn" style="display:none;background:rgba(255,107,74,0.1);border:1px solid rgba(255,107,74,0.2);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left">
 <p style="font-size:14px;font-weight:700;margin-bottom:6px">외부 브라우저에서 열어주세요</p>
 <p class="dim" style="font-size:12px;line-height:1.6;margin-bottom:10px">카카오톡·인스타그램 등 인앱 브라우저에서는<br>Google 보안 정책으로 로그인이 차단됩니다.</p>
@@ -70,7 +67,7 @@ Google로 시작하기
 <div style="text-align:center;padding:30px 0;border-radius:20px;margin-top:8px;background:linear-gradient(160deg,rgba(255,107,74,0.1),rgba(132,94,247,0.05));border:1px solid rgba(255,107,74,0.1)">
 <div style="font-size:48px;margin-bottom:12px">🎤</div>
 <h2 style="font-size:18px;font-weight:700;line-height:1.5;margin-bottom:6px">흥얼거림을<br>음악으로 만들어보세요</h2>
-<p class="dim" style="font-size:13px;margin-bottom:20px">콧노래를 녹음하면 AI가<br>완성된 곡으로 만들어드려요</p>
+<p class="dim" style="font-size:13px;margin-bottom:20px">녹음하면 AI가<br>완성된 곡으로 만들어드려요</p>
 <button class="btn gradient" onclick="goRecord()" style="box-shadow:0 6px 24px rgba(255,107,74,0.3)">녹음 시작하기</button>
 </div>
 <div style="height:120px"></div>
@@ -83,12 +80,22 @@ Google로 시작하기
 <span class="muted" style="font-size:12px;letter-spacing:1px">녹음</span>
 <div style="width:40px"></div>
 </div>
-<div style="text-align:center;margin-top:24px">
-<div id="timer" style="font-size:52px;font-weight:300;letter-spacing:6px">0:00</div>
+<div style="text-align:center;margin-top:20px">
+<div id="timer" style="font-size:48px;font-weight:300;letter-spacing:6px">0:00</div>
 <div id="rec-status" class="muted" style="font-size:12px;margin-top:6px">버튼을 눌러 시작하세요</div>
 </div>
+<div class="card" style="margin-top:16px;padding:14px;background:rgba(255,107,74,0.05)">
+<p class="muted" style="font-size:11px;letter-spacing:1px;margin-bottom:8px">🎨 스타일 (선택사항)</p>
+<input id="prompt-input" type="text" placeholder="예: 신나는 팝송, 슬픈 발라드, 강렬한 록..." style="width:100%;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box" maxlength="200">
+<p class="dim" style="font-size:11px;margin-top:6px;line-height:1.5">비워두면 AI가 자동으로 결정해요</p>
+</div>
 <div class="card" style="margin-top:16px;padding:16px"><canvas id="wave"></canvas></div>
-<p class="dim" style="font-size:12px;text-align:center;margin-top:16px;line-height:1.6">AI가 멜로디를 듣고<br>장르와 분위기를 자동으로 맞춰드려요</p>
+<div style="display:flex;justify-content:center;margin-top:12px">
+<div id="mode-toggle" style="display:inline-flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:99px;padding:3px;gap:2px">
+<button id="mode-vocal" onclick="setInstrumental(false)" style="padding:8px 16px;border-radius:99px;font-size:12px;font-weight:600;color:#fff;transition:all .2s" class="gradient">가사 포함</button>
+<button id="mode-inst" onclick="setInstrumental(true)" style="padding:8px 16px;border-radius:99px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.35);background:transparent;transition:all .2s">연주곡</button>
+</div>
+</div>
 <div style="display:flex;justify-content:center;align-items:center;gap:24px;padding:20px 0">
 <button id="btn-reset" onclick="resetRec()" style="display:none;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:20px">↺</button>
 <button id="btn-rec" class="rec-btn" onclick="toggleRec()"><div class="dot"></div></button>
@@ -131,21 +138,42 @@ Google로 시작하기
 <h2 id="song-title" style="font-size:20px;font-weight:700"></h2>
 <p id="song-info" class="dim" style="font-size:13px;margin-top:4px"></p>
 </div>
-<div style="margin-top:16px">
-<button id="play-btn" class="play-btn gradient" onclick="togglePlay()" style="display:none;box-shadow:0 6px 24px rgba(255,107,74,0.3)">
-<span id="play-icon" style="font-size:20px">▶</span>
-<span id="play-text">재생하기</span>
-</button>
-<audio id="player" style="margin-top:8px;margin-bottom:8px" controls></audio>
-<div id="no-audio" class="dim" style="text-align:center;font-size:12px;display:none">오디오를 불러올 수 없습니다</div>
+<div id="custom-player" style="display:none;margin-top:20px">
+<div style="display:flex;align-items:center;gap:14px">
+<button id="cp-play" onclick="togglePlay()" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff;border:none" class="gradient"><span id="cp-icon">▶</span></button>
+<div style="flex:1;min-width:0">
+<div id="cp-bar-wrap" style="width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);cursor:pointer;position:relative" onclick="seekAudio(event)">
+<div id="cp-progress" style="width:0%;height:100%;border-radius:3px;pointer-events:none" class="gradient"></div>
 </div>
+<div style="display:flex;justify-content:space-between;margin-top:6px">
+<span id="cp-cur" class="muted" style="font-size:11px">0:00</span>
+<span id="cp-dur" class="muted" style="font-size:11px">0:00</span>
+</div>
+</div>
+</div>
+</div>
+<audio id="player"></audio>
+<div id="no-audio" class="dim" style="text-align:center;font-size:12px;display:none;margin-top:16px">오디오를 불러올 수 없습니다</div>
 <div id="lyrics-box" style="margin-top:20px;display:none">
 <p class="muted" style="font-size:11px;letter-spacing:1.5px;margin-bottom:8px">가사</p>
 <div class="card"><p id="lyrics" style="color:rgba(255,255,255,0.55);font-size:13px;line-height:2;white-space:pre-line;font-style:italic"></p></div>
 </div>
-<div style="display:flex;gap:8px;margin-top:16px">
-<button class="card" style="flex:1;text-align:center;font-size:13px;font-weight:600" onclick="goRecord()">🔄 다시 만들기</button>
+<div id="rec-player" style="display:none;margin-top:20px">
+<p class="muted" style="font-size:11px;letter-spacing:1.5px;margin-bottom:8px">내 녹음 원본</p>
+<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+<button id="rp-play" onclick="toggleRecPlay()" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;border:none;background:rgba(255,255,255,0.08)"><span id="rp-icon">▶</span></button>
+<div style="flex:1;min-width:0">
+<div id="rp-bar-wrap" style="width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);cursor:pointer" onclick="seekRecAudio(event)">
+<div id="rp-progress" style="width:0%;height:100%;border-radius:2px;background:rgba(255,255,255,0.25);pointer-events:none"></div>
 </div>
+<div style="display:flex;justify-content:space-between;margin-top:4px">
+<span id="rp-cur" class="muted" style="font-size:10px">0:00</span>
+<span id="rp-dur" class="muted" style="font-size:10px">0:00</span>
+</div>
+</div>
+</div>
+</div>
+<audio id="rec-audio"></audio>
 <div style="height:120px"></div>
 </div>
 
@@ -164,8 +192,18 @@ Google로 시작하기
 
 <!-- POPOVER -->
 <div id="popover-bg" onclick="closePopover()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:200"></div>
-<div id="popover" style="display:none;position:fixed;z-index:201;background:rgba(40,40,50,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;min-width:120px;box-shadow:0 8px 32px rgba(0,0,0,0.5);backdrop-filter:blur(12px)">
+<div id="popover" style="display:none;position:fixed;z-index:201;background:rgba(40,40,50,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;min-width:140px;box-shadow:0 8px 32px rgba(0,0,0,0.5);backdrop-filter:blur(12px)">
+<button onclick="doRename()" style="width:100%;padding:12px 16px;text-align:left;font-size:14px;color:rgba(255,255,255,0.85);border-radius:8px;background:transparent">이름 바꾸기</button>
 <button onclick="doDelete()" style="width:100%;padding:12px 16px;text-align:left;font-size:14px;color:#ff4d4f;border-radius:8px;background:transparent">삭제하기</button>
+</div>
+<div id="rename-bg" onclick="closeRename()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:300"></div>
+<div id="rename-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:301;background:rgba(40,40,50,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;width:calc(100% - 48px);max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,0.6);backdrop-filter:blur(12px)">
+<p style="font-size:15px;font-weight:600;margin-bottom:12px">이름 바꾸기</p>
+<input id="rename-input" type="text" onkeydown="if(event.key==='Enter')submitRename()" style="width:100%;padding:12px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;outline:none;box-sizing:border-box" maxlength="50">
+<div style="display:flex;gap:8px;margin-top:14px">
+<button onclick="closeRename()" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:14px">취소</button>
+<button onclick="submitRename()" class="gradient" style="flex:1;padding:10px;border-radius:10px;color:#fff;font-size:14px;font-weight:600">확인</button>
+</div>
 </div>
 
 <!-- MINI PLAYER -->
@@ -182,7 +220,7 @@ Google로 시작하기
 
 <!-- NAV -->
 <div class="nav" id="navbar" style="display:none">
-<button onclick="goHome()"><span>🏠</span><span>홈</span></button>
+<button id="nav-home" onclick="goHome()"><span>🏠</span><span>홈</span></button>
 <button id="nav-gen" onclick="show('s-gen')" style="display:none;position:relative"><span style="animation:spin 2s linear infinite;display:inline-block">⏳</span><span style="color:#FF6B4A">생성 중</span></button>
 <button onclick="goLib()"><span>🎵</span><span>보관함</span></button>
 </div>
@@ -194,7 +232,7 @@ var SUPABASE_URL='https://xjuzejvrzhzwjcwcmgmv.supabase.co';
 var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXplanZyemh6d2pjd2NtZ212Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MzkyOTcsImV4cCI6MjA4NjUxNTI5N30.cMJGmuIZ7_LsBvHcmqxOmkWoPx1jCrAp4_W4CYg8_uE';
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-var G={recording:false,simMode:false,time:0,songs:[],user:null,currentSong:null},
+var G={recording:false,simMode:false,time:0,songs:[],user:null,currentSong:null,instrumental:false},
 mediaRec,audioCtx,analyser,stream,chunks=[],timerIv,canvasAnim;
 
 async function getAuthHeaders(){
@@ -239,12 +277,14 @@ if(event==='SIGNED_OUT'){G.user=null;show('s-login');document.getElementById('na
 });
 
 // === 네비게이션 ===
-var _genActive=false;
-function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active');var showNav=id==='s-home'||id==='s-library'||id==='s-gen';document.getElementById('navbar').style.display=showNav?'flex':'none';document.getElementById('nav-gen').style.display=_genActive&&id!=='s-gen'?'flex':'none';var p=document.getElementById('player');var hasSong=G.currentSong&&G.currentSong.audioUrl;document.getElementById('mini-player').style.display=(hasSong&&id!=='s-result'&&showNav)?'block':'none';}
-function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+var _genActive=false,_pollIv=null,_submitting=false;
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});document.getElementById(id).classList.add('active');var showNav=id==='s-home'||id==='s-library'||id==='s-gen';document.getElementById('navbar').style.display=showNav?'flex':'none';document.getElementById('nav-gen').style.display=_genActive&&id!=='s-gen'?'flex':'none';document.getElementById('nav-home').style.display=_genActive?'none':'flex';var hasSong=G.currentSong&&G.currentSong.audioUrl;document.getElementById('mini-player').style.display=(hasSong&&id!=='s-result'&&showNav)?'block':'none';}
+function fmtT(s){s=Math.floor(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
 function goHome(){show('s-home');}
-function goRecord(){G.time=0;G.simMode=false;show('s-record');updateRecUI();}
+function goRecord(){G.time=0;G.simMode=false;G.instrumental=false;show('s-record');updateRecUI();updateModeToggle();}
 function goLib(){show('s-library');loadLibrary();}
+function setInstrumental(v){G.instrumental=v;updateModeToggle();}
+function updateModeToggle(){var vb=document.getElementById('mode-vocal'),ib=document.getElementById('mode-inst');if(G.instrumental){vb.className='';vb.style.background='transparent';vb.style.color='rgba(255,255,255,0.35)';ib.className='gradient';ib.style.color='#fff';}else{vb.className='gradient';vb.style.color='#fff';ib.className='';ib.style.background='transparent';ib.style.color='rgba(255,255,255,0.35)';}}
 
 // === 녹음 UI ===
 function updateRecUI(){
@@ -271,7 +311,7 @@ try{
 stream=await navigator.mediaDevices.getUserMedia({audio:true});
 audioCtx=new(window.AudioContext||window.webkitAudioContext)();
 var src=audioCtx.createMediaStreamSource(stream);
-analyser=audioCtx.createAnalyser();analyser.fftSize=256;src.connect(analyser);
+analyser=audioCtx.createAnalyser();analyser.fftSize=512;src.connect(analyser);
 mediaRec=new MediaRecorder(stream);chunks=[];
 mediaRec.ondataavailable=function(e){if(e.data.size>0)chunks.push(e.data);};
 mediaRec.start(100);G.simMode=false;
@@ -285,14 +325,14 @@ function drawWave(){
 var c=document.getElementById('wave');if(!c)return;
 var ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1;
 c.width=c.offsetWidth*dpr;c.height=c.offsetHeight*dpr;ctx.scale(dpr,dpr);
-var W=c.offsetWidth,H=c.offsetHeight,bars=40,bw=3,gap=(W-bars*bw)/(bars-1),data=new Uint8Array(128),t=0;
+var W=c.offsetWidth,H=c.offsetHeight,bars=40,bw=3,gap=(W-bars*bw)/(bars-1),data=new Uint8Array(256),t=0;
 cancelAnimationFrame(canvasAnim);
 function draw(){ctx.clearRect(0,0,W,H);
 if(analyser&&G.recording&&!G.simMode){analyser.getByteFrequencyData(data);}
 t+=.06;
 for(var i=0;i<bars;i++){var v;
 if(G.simMode&&G.recording){v=.2+.4*Math.sin(t+i*.3)*Math.sin(t*.7+i*.15)+.15*Math.cos(t*1.3+i*.5);v=Math.max(.05,Math.min(1,v));}
-else if(analyser&&G.recording){v=data[Math.floor(i*36/bars)]/255;}else{v=0;}
+else if(analyser&&G.recording){v=data[Math.floor(i*200/bars)]/255;}else{v=0;}
 var h=Math.max(3,v*H*.85),x=i*(bw+gap),y=(H-h)/2;
 var g=ctx.createLinearGradient(x,y,x,y+h);
 g.addColorStop(0,'rgba(255,107,74,'+(0.3+v*0.7)+')');
@@ -300,7 +340,6 @@ g.addColorStop(1,'rgba(132,94,247,'+(0.3+v*0.7)+')');
 ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,bw,h,2);ctx.fill();}
 canvasAnim=requestAnimationFrame(draw);}draw();
 }
-
 
 // === WebM → WAV 변환 ===
 function convertToWav(blob){
@@ -333,8 +372,8 @@ reader.readAsArrayBuffer(blob);
 
 // === 곡 생성 ===
 async function submitGen(){
-if(G.time<3)return;
-_maxP=0;
+if(G.time<3||_submitting)return;
+_submitting=true;_maxP=0;
 show('s-gen');
 document.getElementById('gen-style').textContent='멜로디 기반 AI 자동 작곡';
 document.getElementById('gen-bar').style.width='0%';
@@ -373,7 +412,8 @@ return;
 
 // Step 2: sunoapi.org upload-extend
 setProgress(15,'AI에게 곡 생성을 요청 중...');
-var genRes=await fetch('/api/generate',{method:'POST',headers:authHeaders,body:JSON.stringify({audioUrl:uploadData.blobUrl,duration:G.time})});
+var prompt=document.getElementById('prompt-input').value.trim();
+var genRes=await fetch('/api/generate',{method:'POST',headers:authHeaders,body:JSON.stringify({audioUrl:uploadData.blobUrl,duration:G.time,instrumental:G.instrumental,prompt:prompt})});
 var genData=await genRes.json();
 
 if(genData.success&&genData.taskId){taskId=genData.taskId;}
@@ -382,45 +422,56 @@ else{console.log('Generate error:',genData);taskId=null;}
 
 if(taskId){
 _genActive=true;
+G.recordingUrl=uploadData.blobUrl;
 localStorage.setItem('humusic_taskId',taskId);
 localStorage.setItem('humusic_taskTime',Date.now().toString());
+localStorage.setItem('humusic_recordingUrl',uploadData.blobUrl);
 pollStatus(taskId);
 }
 else{showError('곡 생성 요청에 실패했습니다. 잠시 후 다시 시도해주세요.');}
 }
 
 function pollStatus(taskId){
-var p=5,pollCount=0,maxPolls=100;
+if(_pollIv){clearInterval(_pollIv);_pollIv=null;}
+var p=5,pollCount=0,maxPolls=100,done=false;
 setProgress(p,'서버에 요청을 보냈어요...');
-var iv=setInterval(async function(){
+_pollIv=setInterval(async function(){
+if(done)return;
 pollCount++;
-if(pollCount>maxPolls){clearInterval(iv);clearGenState();showError('곡 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');return;}
+if(pollCount>maxPolls){clearInterval(_pollIv);_pollIv=null;clearGenState();showError('곡 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');return;}
 try{
 var ah=await getAuthHeaders();
 var r=await fetch('/api/status?taskId='+taskId,{headers:ah});
 var d=await r.json();
 if(d.status==='completed'&&d.song){
-clearInterval(iv);clearGenState();setProgress(100,'완성!');
-var song={title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||''};
+if(done)return;
+done=true;clearInterval(_pollIv);_pollIv=null;
+var recUrl=G.recordingUrl||localStorage.getItem('humusic_recordingUrl')||'';
+clearGenState();setProgress(100,'완성!');
+var song={title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||'',recordingUrl:recUrl};
 await saveSong(song);
-setTimeout(function(){showResult(song);},500);
-}else if(d.status==='failed'){clearInterval(iv);clearGenState();showError(d.error||'곡 생성에 실패했습니다. 다시 시도해주세요.');}
+setTimeout(function(){goLib();},500);
+}else if(d.status==='failed'){clearInterval(_pollIv);_pollIv=null;clearGenState();showError(d.error||'곡 생성에 실패했습니다. 다시 시도해주세요.');}
 else{
 var serverP=d.progress||0;
 p=serverP>p?serverP:Math.min(90,p+2);
 var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
 setProgress(p,msg);}
-}catch(e){clearInterval(iv);clearGenState();showError('서버 연결에 실패했습니다. 인터넷 연결을 확인해주세요.');}
+}catch(e){clearInterval(_pollIv);_pollIv=null;clearGenState();showError('서버 연결에 실패했습니다. 인터넷 연결을 확인해주세요.');}
 },3000);
 }
 
 function clearGenState(){
-_genActive=false;
+_genActive=false;_submitting=false;
+if(_pollIv){clearInterval(_pollIv);_pollIv=null;}
 localStorage.removeItem('humusic_taskId');
 localStorage.removeItem('humusic_taskTime');
+localStorage.removeItem('humusic_recordingUrl');
+G.recordingUrl='';
 }
 
 function resumeGenIfNeeded(){
+if(_pollIv)return true;
 var savedTaskId=localStorage.getItem('humusic_taskId');
 var savedTime=localStorage.getItem('humusic_taskTime');
 if(!savedTaskId)return false;
@@ -464,7 +515,8 @@ user_id:G.user.id,
 title:song.title,
 audio_url:song.audioUrl||null,
 image_url:song.imageUrl||null,
-lyrics:song.lyrics||null
+lyrics:song.lyrics||null,
+recording_url:song.recordingUrl||null
 });
 }catch(e){console.log('Save failed',e);}
 }
@@ -517,6 +569,32 @@ document.getElementById('popover').style.display='none';
 document.getElementById('popover-bg').style.display='none';
 _deleteIdx=-1;
 }
+function doRename(){
+var idx=_deleteIdx;
+closePopover();
+if(idx<0||!G.songs[idx])return;
+var modal=document.getElementById('rename-modal');
+var input=document.getElementById('rename-input');
+input.value=G.songs[idx].title;
+modal.style.display='block';
+document.getElementById('rename-bg').style.display='block';
+modal._idx=idx;
+setTimeout(function(){input.focus();input.select();},100);
+}
+function closeRename(){
+document.getElementById('rename-modal').style.display='none';
+document.getElementById('rename-bg').style.display='none';
+}
+async function submitRename(){
+var modal=document.getElementById('rename-modal');
+var idx=modal._idx;
+var newName=document.getElementById('rename-input').value.trim();
+if(!newName||idx<0||!G.songs[idx])return closeRename();
+var song=G.songs[idx];
+closeRename();
+try{await sb.from('songs').update({title:newName}).eq('id',song.id).eq('user_id',G.user.id);}catch(e){}
+loadLibrary();
+}
 function doDelete(){
 if(_deleteIdx>=0)deleteSong(_deleteIdx);
 closePopover();
@@ -532,7 +610,7 @@ loadLibrary();
 }
 
 function dbToSong(row){
-return {id:row.id,title:row.title,audioUrl:row.audio_url||'',imageUrl:row.image_url||'',lyrics:row.lyrics||'',createdAt:row.created_at,liked:!!row.liked};
+return {id:row.id,title:row.title,audioUrl:row.audio_url||'',imageUrl:row.image_url||'',lyrics:row.lyrics||'',createdAt:row.created_at,liked:!!row.liked,recordingUrl:row.recording_url||''};
 }
 
 // === 결과 표시 ===
@@ -547,46 +625,89 @@ document.getElementById('song-title').textContent=song.title;
 document.getElementById('song-info').textContent='';
 var player=document.getElementById('player');
 var noAudio=document.getElementById('no-audio');
-var playBtn=document.getElementById('play-btn');
+var cp=document.getElementById('custom-player');
 if(song.audioUrl){
-player.src=song.audioUrl;player.style.display='block';player.load();
-playBtn.style.display='flex';noAudio.style.display='none';
+player.src=song.audioUrl;player.load();
+cp.style.display='block';noAudio.style.display='none';
+document.getElementById('cp-icon').textContent='▶';
+document.getElementById('cp-progress').style.width='0%';
+document.getElementById('cp-cur').textContent='0:00';
+document.getElementById('cp-dur').textContent='0:00';
 // 미니 플레이어 세팅
 document.getElementById('mini-title').textContent=song.title;
 if(song.imageUrl){document.getElementById('mini-thumb').style.background='url('+song.imageUrl+') center/cover';document.getElementById('mini-thumb').className='';document.getElementById('mini-thumb').innerHTML='';}
 else{document.getElementById('mini-thumb').style.background='';document.getElementById('mini-thumb').className='gradient';document.getElementById('mini-thumb').innerHTML='🎶';}
-}else{player.style.display='none';playBtn.style.display='none';noAudio.style.display='block';}
+}else{cp.style.display='none';noAudio.style.display='block';}
 if(song.lyrics){document.getElementById('lyrics').textContent=song.lyrics;document.getElementById('lyrics-box').style.display='block';}
 else{document.getElementById('lyrics-box').style.display='none';}
 if(song.imageUrl){document.getElementById('album-art').style.background='url('+song.imageUrl+') center/cover';}
 else{document.getElementById('album-art').style.background='';document.getElementById('album-art').className='gradient';document.getElementById('album-art').style.borderRadius='20px';}
+// 녹음 원본 플레이어
+var recPlayer=document.getElementById('rec-audio');
+var recBox=document.getElementById('rec-player');
+if(song.recordingUrl){
+recPlayer.src=song.recordingUrl;recPlayer.load();
+recBox.style.display='block';
+document.getElementById('rp-icon').textContent='▶';
+document.getElementById('rp-progress').style.width='0%';
+document.getElementById('rp-cur').textContent='0:00';
+document.getElementById('rp-dur').textContent='0:00';
+}else{recBox.style.display='none';}
 }
 
 function togglePlay(){
 var player=document.getElementById('player');
-if(player.paused){player.play();}else{player.pause();}
+if(player.paused){document.getElementById('rec-audio').pause();player.play();}else{player.pause();}
 }
-
-// === 미니 플레이어 ===
+function seekTo(ev,audioEl,barEl){if(!audioEl.duration)return;var r=barEl.getBoundingClientRect();audioEl.currentTime=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*audioEl.duration;}
+function seekAudio(ev){seekTo(ev,document.getElementById('player'),document.getElementById('cp-bar-wrap'));}
+// === 플레이어 이벤트 ===
 (function(){
 var player=document.getElementById('player');
-var mini=document.getElementById('mini-player');
-function syncMiniIcon(icon){document.getElementById('mini-play-icon').textContent=icon;}
-player.addEventListener('play',function(){
-syncMiniIcon('⏸');
-document.getElementById('play-icon').textContent='⏸';document.getElementById('play-text').textContent='일시정지';
-});
-player.addEventListener('pause',function(){
-syncMiniIcon('▶');
-document.getElementById('play-icon').textContent='▶';document.getElementById('play-text').textContent='재생하기';
-});
+function syncIcons(icon){document.getElementById('cp-icon').textContent=icon;document.getElementById('mini-play-icon').textContent=icon;}
+player.addEventListener('play',function(){syncIcons('⏸');});
+player.addEventListener('pause',function(){syncIcons('▶');});
 player.addEventListener('ended',function(){
-syncMiniIcon('▶');
-document.getElementById('play-icon').textContent='▶';document.getElementById('play-text').textContent='다시 재생';
+syncIcons('▶');
+document.getElementById('cp-progress').style.width='0%';
+document.getElementById('cp-cur').textContent='0:00';
 document.getElementById('mini-progress').style.width='0%';
 });
 player.addEventListener('timeupdate',function(){
-if(player.duration){document.getElementById('mini-progress').style.width=(player.currentTime/player.duration*100)+'%';}
+if(!player.duration)return;
+var pct=player.currentTime/player.duration*100;
+document.getElementById('cp-progress').style.width=pct+'%';
+document.getElementById('cp-cur').textContent=fmtT(player.currentTime);
+document.getElementById('mini-progress').style.width=pct+'%';
+});
+player.addEventListener('loadedmetadata',function(){
+document.getElementById('cp-dur').textContent=fmtT(player.duration);
+});
+})();
+
+// === 녹음 원본 플레이어 ===
+function toggleRecPlay(){
+var rp=document.getElementById('rec-audio');
+var mp=document.getElementById('player');
+if(rp.paused){mp.pause();rp.play();}else{rp.pause();}
+}
+function seekRecAudio(ev){seekTo(ev,document.getElementById('rec-audio'),document.getElementById('rp-bar-wrap'));}
+(function(){
+var rp=document.getElementById('rec-audio');
+rp.addEventListener('play',function(){document.getElementById('rp-icon').textContent='⏸';});
+rp.addEventListener('pause',function(){document.getElementById('rp-icon').textContent='▶';});
+rp.addEventListener('ended',function(){
+document.getElementById('rp-icon').textContent='▶';
+document.getElementById('rp-progress').style.width='0%';
+document.getElementById('rp-cur').textContent='0:00';
+});
+rp.addEventListener('timeupdate',function(){
+if(!rp.duration)return;
+document.getElementById('rp-progress').style.width=(rp.currentTime/rp.duration*100)+'%';
+document.getElementById('rp-cur').textContent=fmtT(rp.currentTime);
+});
+rp.addEventListener('loadedmetadata',function(){
+document.getElementById('rp-dur').textContent=fmtT(rp.duration);
 });
 })();
 

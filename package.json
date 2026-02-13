@@ -2,6 +2,7 @@
   "name": "humusic",
   "version": "1.0.0",
   "dependencies": {
+    "@vercel/blob": "^2.2.0",
     "formidable": "^3.5.1",
     "node-fetch": "^2.7.0"
   }
