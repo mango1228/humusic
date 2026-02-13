@@ -119,6 +119,15 @@ Google로 시작하기
 <p class="dim" style="font-size:11px;margin-top:20px;line-height:1.6">보통 1~3분 정도 소요됩니다<br>화면을 닫지 마세요</p>
 </div>
 
+<!-- ERROR -->
+<div id="s-error" class="screen" style="text-align:center;padding-top:25vh">
+<div style="font-size:56px;margin-bottom:16px">😔</div>
+<h2 style="font-size:18px;font-weight:700;margin-bottom:8px">곡 생성에 실패했어요</h2>
+<p id="error-msg" class="dim" style="font-size:13px;line-height:1.6;margin-bottom:24px"></p>
+<button class="btn gradient" onclick="goRecord()" style="box-shadow:0 6px 24px rgba(255,107,74,0.3)">다시 녹음하기</button>
+<button class="dim" onclick="goHome()" style="display:block;margin:12px auto;font-size:13px">홈으로 돌아가기</button>
+</div>
+
 <!-- RESULT -->
 <div id="s-result" class="screen">
 <div style="display:flex;justify-content:space-between;align-items:center">
@@ -341,10 +350,9 @@ document.getElementById('gen-style').textContent='멜로디 기반 AI 자동 작
 document.getElementById('gen-bar').style.width='0%';
 document.getElementById('gen-pct').textContent='0%';
 
-// 시뮬레이션 모드 (마이크 없음) → 데모
+// 시뮬레이션 모드 (마이크 없음) → 에러
 if(G.simMode||chunks.length===0){
-setProgress(5,'시뮬레이션 모드 - 데모를 준비합니다...');
-setTimeout(function(){runDemo();},500);
+showError('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 접근을 허용해주세요.');
 return;
 }
 
@@ -368,8 +376,7 @@ var uploadData=await uploadRes.json();
 
 if(!uploadData.success||!uploadData.blobUrl){
 console.log('Upload failed:',uploadData);
-setProgress(10,'업로드 실패 - 데모 모드로 전환합니다...');
-setTimeout(function(){runDemo();},1500);
+showError('오디오 업로드에 실패했습니다. 다시 시도해주세요.');
 return;
 }
 
@@ -383,7 +390,7 @@ else{console.log('Generate error:',genData);taskId=null;}
 }catch(e){console.log('Error:',e);taskId=null;}
 
 if(taskId){pollStatus(taskId);}
-else{setProgress(10,'API 오류 - 데모 모드로 전환합니다...');setTimeout(function(){runDemo();},1500);}
+else{showError('곡 생성 요청에 실패했습니다. 잠시 후 다시 시도해주세요.');}
 }
 
 function pollStatus(taskId){
@@ -397,27 +404,19 @@ clearInterval(iv);setProgress(100,'완성!');
 var song={title:d.song.title||'나의 노래',audioUrl:d.song.audioUrl||'',imageUrl:d.song.imageUrl||'',lyrics:d.song.lyrics||''};
 await saveSong(song);
 setTimeout(function(){showResult(song);},500);
-}else if(d.status==='failed'){clearInterval(iv);runDemo();}
+}else if(d.status==='failed'){clearInterval(iv);showError(d.error||'곡 생성에 실패했습니다. 다시 시도해주세요.');}
 else{
 var serverP=d.progress||0;
 p=serverP>p?serverP:Math.min(90,p+2);
 var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
 setProgress(p,msg);}
-}catch(e){clearInterval(iv);runDemo();}
+}catch(e){clearInterval(iv);showError('서버 연결에 실패했습니다. 인터넷 연결을 확인해주세요.');}
 },3000);
 }
 
-function runDemo(){
-var p=5;
-var iv=setInterval(function(){
-p+=Math.random()*5+2;
-if(p>=100){clearInterval(iv);setProgress(100,'완성!');
-var song={title:'나의 노래',audioUrl:'',lyrics:LYRICS.pop,isDemo:true};
-saveSong(song);
-setTimeout(function(){showResult(song);},500);return;}
-var msg=p<20?'AI가 멜로디를 분석하고 있어요...':p<50?'가사를 생성하고 있어요...':p<80?'반주를 완성하고 있어요...':'최종 믹싱 중...';
-setProgress(p,msg);
-},400);
+function showError(msg){
+show('s-error');
+document.getElementById('error-msg').textContent=msg||'알 수 없는 오류가 발생했습니다.';
 }
 
 function setProgress(p,msg){
